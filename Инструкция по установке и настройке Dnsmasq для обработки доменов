@@ -1,0 +1,78 @@
+
+# Установка и настройка Dnsmasq для обработки доменов .loc
+
+## 1. Установка Dnsmasq
+```bash
+sudo apt update
+sudo apt install dnsmasq
+```
+
+## 2. Настройка Dnsmasq
+Откройте файл конфигурации Dnsmasq:
+```bash
+sudo nano /etc/dnsmasq.conf
+```
+
+Добавьте следующие строки в конец файла:
+```conf
+address=/.loc/127.0.0.1
+```
+
+## 3. Перезапуск Dnsmasq
+```bash
+sudo systemctl restart dnsmasq
+```
+
+## 4. Настройка сетевых интерфейсов
+Убедитесь, что ваш системный DNS-сервер настроен на использование Dnsmasq. Для этого откройте файл конфигурации сетевого интерфейса:
+```bash
+sudo nano /etc/resolv.conf
+```
+
+Добавьте строку:
+```conf
+nameserver 127.0.0.1
+```
+
+Или, если ваш дистрибутив использует `resolvconf`, создайте или отредактируйте файл:
+```bash
+sudo nano /etc/resolvconf/resolv.conf.d/head
+```
+
+Добавьте строку:
+```conf
+nameserver 127.0.0.1
+```
+
+Обновите настройки:
+```bash
+sudo resolvconf -u
+```
+
+Если получите предупреждение:
+```
+/etc/resolvconf/update.d/libc: Warning: /etc/resolv.conf is not a symbolic link to /run/resolvconf/resolv.conf
+```
+Создайте резервную копию текущего файла `/etc/resolv.conf` и создайте символическую ссылку:
+```bash
+sudo mv /etc/resolv.conf /etc/resolv.conf.backup
+sudo ln -s /run/resolvconf/resolv.conf /etc/resolv.conf
+sudo resolvconf -u
+```
+
+## 5. Проверка работы Dnsmasq
+### Проверка статуса Dnsmasq
+```bash
+sudo systemctl status dnsmasq
+```
+
+### Проверка разрешения домена
+С помощью `dig`:
+```bash
+dig test.loc
+```
+
+С помощью `nslookup`:
+```bash
+nslookup test.loc
+```
